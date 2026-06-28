@@ -1,5 +1,16 @@
 # TEC2 Final Assessment Base
 
+### Equipe / Aluno:
+* **Nicson Costa Antunes**
+
+---
+
+This is the base repository for the final assessment of Tópicos Especiais em Computação II.
+
+The official assignment statement is available at [`docs/tec2-aval.md`](docs/tec2-aval.md). This README is only an operational guide and does not replace the assignment statement.
+
+# TEC2 Final Assessment Base
+
 This is the base repository for the final assessment of Tópicos Especiais em Computação II.
 
 The official assignment statement is available at [`docs/tec2-aval.md`](docs/tec2-aval.md). This README is only an operational guide and does not replace the assignment statement.
