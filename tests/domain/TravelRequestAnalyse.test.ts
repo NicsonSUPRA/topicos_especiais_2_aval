@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { TravelRequest } from "../../src/domain/TravelRequest";
+import { TravelRequestAnalyse } from "../../src/domain/TravelRequestAnalyse.js";
 import type { RequesterType, TravelRequestInput } from "../../src/main.js";
 
-// Função auxiliar idêntica à do professor (Fixture / Object Mother)
 function makeInput(overrides: Partial<TravelRequestInput> = {}): TravelRequestInput {
     return {
         requestId: "TR-001",
@@ -19,7 +18,7 @@ function makeInput(overrides: Partial<TravelRequestInput> = {}): TravelRequestIn
 
 describe("TravelRequestAnalyse (Domain)", () => {
     it("approves a simple valid travel request", () => {
-        const travelRequest = new TravelRequest(makeInput());
+        const travelRequest = new TravelRequestAnalyse(makeInput());
 
         expect(travelRequest.getStatus()).toBe("approved");
         expect(travelRequest.getTravelDays()).toBe(3);
@@ -31,7 +30,7 @@ describe("TravelRequestAnalyse (Domain)", () => {
     });
 
     it("calculates travel days inclusively", () => {
-        const travelRequest = new TravelRequest(
+        const travelRequest = new TravelRequestAnalyse(
             makeInput({
                 departureDate: "2026-09-01",
                 returnDate: "2026-09-01",
@@ -51,14 +50,14 @@ describe("TravelRequestAnalyse (Domain)", () => {
         ] satisfies Array<[RequesterType, number]>;
 
         for (const [requesterType, expectedDailyAmountInCents] of examples) {
-            const travelRequest = new TravelRequest(makeInput({ requesterType }));
+            const travelRequest = new TravelRequestAnalyse(makeInput({ requesterType }));
 
             expect(travelRequest.getDailyAmountInCents()).toBe(expectedDailyAmountInCents);
         }
     });
 
     it("calculates subtotal and total amounts", () => {
-        const travelRequest = new TravelRequest(
+        const travelRequest = new TravelRequestAnalyse(
             makeInput({
                 requesterType: "professor",
                 departureDate: "2026-10-05",
@@ -73,7 +72,7 @@ describe("TravelRequestAnalyse (Domain)", () => {
     });
 
     it("marks travel requests longer than five days as pending review", () => {
-        const travelRequest = new TravelRequest(
+        const travelRequest = new TravelRequestAnalyse(
             makeInput({
                 departureDate: "2026-11-01",
                 returnDate: "2026-11-06",
@@ -86,7 +85,7 @@ describe("TravelRequestAnalyse (Domain)", () => {
     });
 
     it("marks travel requests above BRL 2,000.00 as pending review", () => {
-        const travelRequest = new TravelRequest(
+        const travelRequest = new TravelRequestAnalyse(
             makeInput({
                 requesterType: "manager",
                 departureDate: "2026-12-01",
@@ -100,7 +99,7 @@ describe("TravelRequestAnalyse (Domain)", () => {
     });
 
     it("adds a warning for long travel requests with a short reason", () => {
-        const travelRequest = new TravelRequest(
+        const travelRequest = new TravelRequestAnalyse(
             makeInput({
                 departureDate: "2027-01-10",
                 returnDate: "2027-01-16",
@@ -114,7 +113,7 @@ describe("TravelRequestAnalyse (Domain)", () => {
     });
 
     it("rejects requests with missing required fields", () => {
-        const travelRequest = new TravelRequest(
+        const travelRequest = new TravelRequestAnalyse(
             makeInput({
                 requestId: "",
                 requesterName: "",
@@ -137,7 +136,7 @@ describe("TravelRequestAnalyse (Domain)", () => {
     });
 
     it("rejects requests with invalid date formats", () => {
-        const travelRequest = new TravelRequest(
+        const travelRequest = new TravelRequestAnalyse(
             makeInput({
                 departureDate: "2026/08/10",
                 returnDate: "2026-02-30",
@@ -152,7 +151,7 @@ describe("TravelRequestAnalyse (Domain)", () => {
     });
 
     it("rejects requests when returnDate is before departureDate", () => {
-        const travelRequest = new TravelRequest(
+        const travelRequest = new TravelRequestAnalyse(
             makeInput({
                 departureDate: "2026-08-15",
                 returnDate: "2026-08-14",
