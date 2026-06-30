@@ -1,5 +1,7 @@
-export type RequesterType = "student" | "employee" | "professor" | "manager";
+import { ProcessTravelRequestUseCase } from "./application/usecases/process-travel-request-usecase.js";
+import { PostgresTravelRequestRepository } from "./infra/database/postgres-travel-request-repository.js";
 
+export type RequesterType = "student" | "employee" | "professor" | "manager";
 export type TravelRequestStatus = "approved" | "pending-review" | "rejected";
 
 export type TravelRequestInput = {
@@ -24,4 +26,10 @@ export type TravelRequestOutput = {
   warnings: string[];
 };
 
-export { processTravelRequest } from "./original/process-travel-request.js";
+const travelRequestRepository = new PostgresTravelRequestRepository();
+const processTravelRequestUseCase = new ProcessTravelRequestUseCase(travelRequestRepository);
+
+// ATENÇÃO: Sem 'async' e retornando diretamente o DTO síncrono para os testes herdados
+export function processTravelRequest(input: TravelRequestInput): TravelRequestOutput {
+  return processTravelRequestUseCase.execute(input);
+}
