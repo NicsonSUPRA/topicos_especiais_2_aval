@@ -6,6 +6,8 @@ export class TravelRequestAnalyse {
     private readonly requesterName: string;
     private readonly requesterType: string;
     private readonly destination: string;
+    private readonly departureDate: string;
+    private readonly returnDate: string;
     private readonly transportCostInCents: number;
     private readonly reason: string;
 
@@ -33,9 +35,12 @@ export class TravelRequestAnalyse {
         this.transportCostInCents = input.transportCostInCents ?? 0;
         this.reason = input.reason || "";
 
+        this.departureDate = input.departureDate || "";
+        this.returnDate = input.returnDate || "";
+
         this.validateRequiredFields();
 
-        const period = new TravelPeriod(input.departureDate || "", input.returnDate || "");
+        const period = new TravelPeriod(this.departureDate, this.returnDate);
         this.errors.push(...period.getErrors());
 
         if (this.errors.length === 0) {
@@ -69,6 +74,13 @@ export class TravelRequestAnalyse {
     }
 
     public getRequestId(): string { return this.requestId; }
+    public getRequesterName(): string { return this.requesterName; }
+    public getRequesterType(): string { return this.requesterType; }
+    public getDestination(): string { return this.destination; }
+    public getDepartureDate(): string { return this.departureDate; }
+    public getReturnDate(): string { return this.returnDate; }
+    public getReason(): string { return this.reason; }
+    public getTransportCostInCents(): number { return this.transportCostInCents; }
     public getTravelDays(): number { return this.travelDays; }
     public getDailyAmountInCents(): number { return this.dailyAmountInCents; }
     public getSubtotalInCents(): number { return this.subtotalInCents; }

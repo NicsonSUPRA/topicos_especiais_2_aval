@@ -1,33 +1,113 @@
-import { TravelRequestRepository } from "../../application/contracts/travel-request-repository.js";
+import {
+    PersistedTravelRequest,
+    TravelRequestRepository,
+} from "../../application/contracts/travel-request-repository.js";
 import { TravelRequestAnalyse } from "../../domain/TravelRequestAnalyse.js";
-// Nota: Se o projeto fornecer um helper ou pool de conexão (ex: pg), importe-o aqui.
-// Geralmente o repositório-base disponibiliza a variável de ambiente DATABASE_URL.
+import { getPool } from "./connection-pool.js";
 
 export class PostgresTravelRequestRepository implements TravelRequestRepository {
-    constructor() {
-        // Inicialize seu cliente de banco de dados (ex: pg Pool) se necessário
-    }
-
     async save(analysis: TravelRequestAnalyse): Promise<void> {
-        // 1. Aqui você fará a persistência real no PostgreSQL conforme o critério do projeto
-        // Exemplo fictício usando SQL direto (ajuste conforme a estrutura da tabela do banco fornecido):
-        /*
+        const pool = getPool();
+
         const query = `
-            INSERT INTO travel_requests (id, status, travel_days, total_amount, errors, warnings)
-            VALUES ($1, $2, $3, $4, $5, $6)
-            ON CONFLICT (id) DO UPDATE SET status = $2, ...;
+            INSERT INTO travel_requests (
+                id,
+                requester_name,
+                requester_type,
+                destination,
+                departure_date,
+                return_date,
+                reason,
+                status,
+                travel_days,
+                daily_amount_in_cents,
+                subtotal_in_cents,
+                transport_cost_in_cents,
+                total_amount_in_cents,
+                created_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+            ON CONFLICT (id) DO UPDATE SET
+                requester_name = EXCLUDED.requester_name,
+                requester_type = EXCLUDED.requester_type,
+                destination = EXCLUDED.destination,
+                departure_date = EXCLUDED.departure_date,
+                return_date = EXCLUDED.return_date,
+                reason = EXCLUDED.reason,
+                status = EXCLUDED.status,
+                travel_days = EXCLUDED.travel_days,
+                daily_amount_in_cents = EXCLUDED.daily_amount_in_cents,
+                subtotal_in_cents = EXCLUDED.subtotal_in_cents,
+                transport_cost_in_cents = EXCLUDED.transport_cost_in_cents,
+                total_amount_in_cents = EXCLUDED.total_amount_in_cents,
+                created_at = EXCLUDED.created_at;
         `;
-        await db.query(query, [
+
+        const values = [
             analysis.getRequestId(),
+            analysis.getRequesterName(),
+            analysis.getRequesterType(),
+            analysis.getDestination(),
+            analysis.getDepartureDate(),
+            analysis.getReturnDate(),
+            analysis.getReason(),
             analysis.getStatus(),
             analysis.getTravelDays(),
+            analysis.getDailyAmountInCents(),
+            analysis.getSubtotalInCents(),
+            analysis.getTransportCostInCents(),
             analysis.getTotalAmountInCents(),
-            JSON.stringify(analysis.getErrors()),
-            JSON.stringify(analysis.getWarnings())
-        ]);
-        */
+            new Date().toISOString(),
+        ];
 
-        // Por enquanto, mantenha um retorno resolvido para o typecheck passar até você puxar o driver do banco
-        return Promise.resolve();
+        await pool.query(query, values);
+    }
+
+    async findById(requestId: string): Promise<PersistedTravelRequest | null> {
+        const pool = getPool();
+
+        const query = `
+            SELECT
+                id,
+                requester_name,
+                requester_type,
+                destination,
+                departure_date,
+                return_date,
+                reason,
+                status,
+                travel_days,
+                daily_amount_in_cents,
+                subtotal_in_cents,
+                transport_cost_in_cents,
+                total_amount_in_cents,
+                created_at
+            FROM travel_requests
+            WHERE id = $1;
+        `;
+
+        const result = await pool.query(query, [requestId]);
+
+        if (result.rows.length === 0) {
+            return null;
+        }
+
+        const row = result.rows[0];
+
+        return {
+            id: row.id,
+            requesterName: row.requester_name,
+            requesterType: row.requester_type,
+            destination: row.destination,
+            departureDate: row.departure_date,
+            returnDate: row.return_date,
+            reason: row.reason,
+            status: row.status,
+            travelDays: row.travel_days,
+            dailyAmountInCents: row.daily_amount_in_cents,
+            subtotalInCents: row.subtotal_in_cents,
+            transportCostInCents: row.transport_cost_in_cents,
+            totalAmountInCents: row.total_amount_in_cents,
+            createdAt: row.created_at,
+        };
     }
 }

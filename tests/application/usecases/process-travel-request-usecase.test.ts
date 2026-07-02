@@ -8,6 +8,7 @@ describe("ProcessTravelRequestUseCase", () => {
         // 1. Cria um Mock simulando o contrato do repositório para não tocar no PostgreSQL real
         const mockRepository: TravelRequestRepository = {
             save: vi.fn().mockResolvedValue(undefined),
+            findById: vi.fn().mockResolvedValue(null),
         };
 
         // 2. Instancia o caso de uso passando o mock criado
@@ -41,6 +42,7 @@ describe("ProcessTravelRequestUseCase", () => {
     it("should correctly handle an invalid travel request without crashing and log errors", () => {
         const mockRepository: TravelRequestRepository = {
             save: vi.fn().mockResolvedValue(undefined),
+            findById: vi.fn().mockResolvedValue(null),
         };
 
         const useCase = new ProcessTravelRequestUseCase(mockRepository);
